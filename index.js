@@ -57,7 +57,7 @@ function register() {
 function appelUser() {
     var name = document.getElementById('add').value.trim();
 
-    if (!name || !myStream) {
+    if (!name || !myStream || !peer) {  // Ajout de vérification peer
         alert("Veuillez entrer un nom valide et vous enregistrer d'abord !");
         return;
     }
@@ -71,6 +71,7 @@ function appelUser() {
     document.getElementById('add').value = ""; // Réinitialiser l'entrée
 }
 
+// Fonction pour ajouter le partage d'écran
 function addScreenShare() {
     var name = document.getElementById('share').value.trim();
     document.getElementById('share').value = ""; // Réinitialiser l'entrée
