@@ -7,12 +7,15 @@ function ajoutVideo(stream, userId) {
 
     // Vérifier si la vidéo existe déjà pour cet utilisateur
     if (!existingVideo) {
+        console.log(`Ajout de la vidéo pour l'utilisateur: ${userId}`);
         let video = document.createElement('video');
         video.id = `video-${userId}`;
         video.srcObject = stream;
         video.autoplay = true;
         video.controls = true;
         document.getElementById('participants').appendChild(video);
+    } else {
+        console.log(`La vidéo pour ${userId} existe déjà.`);
     }
 }
 
@@ -31,6 +34,7 @@ function register() {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true })
             .then(function(stream) {
                 myStream = stream; // Stocke le flux local
+                console.log('Flux local récupéré', stream);
                 ajoutVideo(stream, "self"); // Ajoute la vidéo uniquement après l'enregistrement du nom
                 document.getElementById('register').style.display = 'none';
                 document.getElementById('userAdd').style.display = 'block';
@@ -38,8 +42,10 @@ function register() {
 
                 // Réception d'un appel entrant
                 peer.on('call', function(call) {
+                    console.log('Appel entrant de:', call.peer);
                     call.answer(myStream); // Répondre avec le flux local
                     call.on('stream', function(remoteStream) {
+                        console.log(`Flux vidéo reçu de ${call.peer}`);
                         ajoutVideo(remoteStream, call.peer); // Ajouter la vidéo de l'appelant si elle n'existe pas déjà
                     });
                 });
@@ -57,14 +63,16 @@ function register() {
 function appelUser() {
     var name = document.getElementById('add').value.trim();
 
-    if (!name || !myStream || !peer) {  // Ajout de vérification peer
+    if (!name || !myStream || !peer) {  // Vérifier si peer et stream sont disponibles
         alert("Veuillez entrer un nom valide et vous enregistrer d'abord !");
         return;
     }
 
+    console.log(`Appel de l'utilisateur: ${name}`);
     var call = peer.call(name, myStream);
 
     call.on('stream', function(remoteStream) {
+        console.log(`Flux vidéo reçu de l'utilisateur: ${name}`);
         ajoutVideo(remoteStream, name); // Ajouter la vidéo de l'utilisateur appelé
     });
 
@@ -97,6 +105,7 @@ function addScreenShare() {
 
             // L’invité reçoit le partage et l’affiche
             call.on('stream', function(remoteStream) {
+                console.log(`Flux vidéo partagé reçu de ${name}`);
                 let userScreenVideoId = `video-screen-${name}`;
 
                 // Supprimer la vidéo normale de l’invité (évite les doublons)
